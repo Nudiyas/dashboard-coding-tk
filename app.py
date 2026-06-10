@@ -22,12 +22,11 @@ def get_base64_image(image_path):
 bg_base64 = get_base64_image("coding_kids.png")
 
 # ======================
-# CUSTOM CSS: POLA KARAKTER HIASAN DI BELAKANG (ANTI-TERTUTUP)
+# CUSTOM CSS: POLA KARAKTER HIASAN DI BELAKANG
 # ======================
 if bg_base64:
     st.markdown(f"""
     <style>
-    /* 1. Mengubah seluruh lapis kontainer Streamlit menjadi transparan */
     .stApp, .stMainView, .stHeader, .block-container, 
     [data-testid="stMainViewContext"], 
     [data-testid="stAppViewBlockContainer"], 
@@ -36,28 +35,22 @@ if bg_base64:
         background: transparent !important;
     }}
 
-    /* 2. Membuat lapisan hiasan paling dasar di web dengan warna putih */
     html, body {{
         background-color: white !important;
     }}
 
-    /* 3. Menaruh gambar coding_kids sebagai pola karakter berulang di depan warna putih tapi di belakang teks */
     html::before {{
         content: "";
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
         background-image: url("data:image/png;base64,{bg_base64}");
-        
-        /* Trik membuat gambar menjadi karakter kecil-kecil yang berulang */
-        background-size: 2000px; /* Ukuran karakter hiasannya (bisa dikecilkan misal 80px atau 100px) */
+        background-size: 2000px; 
         background-repeat: repeat; 
         background-attachment: fixed;
-        
-        opacity: 0.06; /* Transparansi tingkat tinggi (6%) agar karakter hanya terlihat samar & tidak ramai */
-        z-index: -2; /* Berada di bawah seluruh teks dan grafik */
+        opacity: 0.06; 
+        z-index: -2; 
     }}
 
-    /* Gaya komponen teks dan kartu dashboard */
     .main-title {{ color: #0369a1; font-family: 'Segoe UI', sans-serif; font-weight: 800; margin-bottom: 2px; }}
     .card {{ padding: 22px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); text-align: center; }}
     .card-rendah {{ background: linear-gradient(135deg, #fff5f5, #fed7d7); border-top: 6px solid #ef5350; }}
@@ -70,7 +63,7 @@ if bg_base64:
     """, unsafe_allow_html=True)
 
 # ======================
-# HEADER DASHBOARD (LOGO TK DI POJOK)
+# HEADER DASHBOARD
 # ======================
 head_col1, head_col2 = st.columns([1, 5])
 with head_col1:
@@ -107,7 +100,7 @@ if file:
         # Normalisasi dan Fit Model
         scaler = MinMaxScaler()
         data[fitur_kolom] = scaler.fit_transform(data[fitur_kolom])
-        kmeans = KMeans(n_clusters=3, random_state=42, n_init=10,  max_iter=100,)
+        kmeans = KMeans(n_clusters=3, random_state=42, n_init=10, max_iter=100)
         data["Raw_Cluster"] = kmeans.fit_predict(data[fitur_kolom])
         
         # Pengurutan Kategori Berdasarkan Centroid
@@ -137,7 +130,7 @@ if file:
         st.markdown("<br>", unsafe_allow_html=True)
 
         # ======================
-        # VISUALISASI: GRAFIK
+        # VISUALISASI JURUSAN BARIS 1: 3D PLOT & DONUT CHART
         # ======================
         g_col1, g_col2 = st.columns([3, 2])
 
@@ -160,7 +153,6 @@ if file:
                     bgcolor="rgba(230, 216, 255, 0.4)"
                 )
             )
-            
             st.plotly_chart(fig_3d, use_container_width=True)
 
         with g_col2:
@@ -169,21 +161,21 @@ if file:
             fig_donut.update_traces(textinfo='percent+label', textfont_size=12)
             fig_donut.update_layout(margin=dict(l=10, r=10, b=10, t=10), paper_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig_donut, use_container_width=True)
-            # ======================
-            # 📊 BAR CHART TAMBAHAN (TARUH DI SINI)
-            # ======================
-            st.markdown("### 📊 Rata-rata Nilai per Kategori (Analisis K-Means)")
-
-            avg_data = data.groupby("Kategori")[fitur_kolom].mean().reset_index()
-
-            avg_melted = avg_data.melt(
+            
+        # ======================
+        # VISUALISASI JURUSAN BARIS 2: BAR CHART UKURAN PENUH (LEBAR)
+        # ======================
+        st.markdown("---")
+        st.markdown("### 📊 Rata-rata Nilai per Kategori (Analisis K-Means)")
+        avg_data = data.groupby("Kategori")[fitur_kolom].mean().reset_index()
+        avg_melted = avg_data.melt(
             id_vars="Kategori",
             value_vars=fitur_kolom,
             var_name="Mata_Pelajaran",
             value_name="Nilai"
         )
 
-            fig_bar = px.bar(
+        fig_bar = px.bar(
             avg_melted,
             x="Kategori",
             y="Nilai",
@@ -191,12 +183,12 @@ if file:
             barmode="group",
             text_auto=".2f"
         )
-
         fig_bar.update_layout(
-        template="plotly_white",
-        height=380
+            template="plotly_white",
+            height=450
         )
         st.plotly_chart(fig_bar, use_container_width=True)
+
         # ======================
         # INSIGHT & TABEL DETAIL
         # ======================
